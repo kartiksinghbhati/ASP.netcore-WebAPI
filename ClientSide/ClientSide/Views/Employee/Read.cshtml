@@ -1,0 +1,150 @@
+﻿@model ClientSide.Models.Employee
+
+@{
+    ViewData["Title"] = "Read";
+}
+
+<style>
+    .details-container {
+        display: flex;
+    }
+
+    .details {
+        flex: 1;
+        margin-right: 20px;
+    }
+
+    .image img {
+        width: 300px;
+        height: 300px;
+    }
+</style>
+
+
+<h2>Employee Detail</h2>
+
+<div class="details-container">
+    <div class="details">
+
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.FirstName)
+                @Html.DisplayNameFor(model => model.LastName)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.FirstName)
+                @Html.DisplayFor(model => model.LastName)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.DateOfBirth)
+            </dt>
+
+            <dd>
+                @Model.DateOfBirth.ToShortDateString()
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Salary)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Salary)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Gender)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Gender)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.ActiveStatus)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.ActiveStatus)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Hobbies)
+            </dt>
+
+            <dd>
+                @if (Model.Hobbies != null && Model.Hobbies.Length > 0)
+                {
+                    @string.Join(", ", Model.Hobbies)
+                }
+                else
+                {
+                        <span>No hobbies selected</span>
+                }
+            </dd>
+
+        </dl>
+    </div>
+
+    <div class="image">
+        @if (!string.IsNullOrEmpty(Model.PhotoBase64))
+        {
+                <img src="@Model.PhotoBase64" alt="Employee Photo" />
+        }
+        else
+        {
+                <span>No photo available</span>
+        }
+    </div>
+</div>
+
+
+   <div class="form-group">
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Back</a>
+    </div>
+
+
+@*@model ClientSide.Models.Employee
+
+<h2>Employee Detail</h2>
+
+<div>
+    <h5>Name: @Model.FirstName @Model.LastName</h5>
+    <h5>Date of Birth: @Model.DateOfBirth.ToShortDateString()</h5>
+    <h5>Salary: @Model.Salary</h5>
+    <h5>Gender: @Model.Gender</h5>
+    <h5>Active Status: @Model.ActiveStatus</h5>
+    
+</div>
+<div class="image">
+    <h5>Hobbies:</h5>
+    @if (Model.Hobbies != null && Model.Hobbies.Length > 0)
+        {
+        @string.Join(", ", Model.Hobbies)
+        }
+        else
+        {
+            <span>No hobbies selected</span>
+        }
+</div>
+<div class="image">
+    <h5>Photo:</h5>
+        @if (!string.IsNullOrEmpty(Model.PhotoBase64))
+        {
+                <img src="@Model.PhotoBase64" width="200" height="150" alt="Employee Photo" />
+        }
+        else
+        {
+            <span>No photo available</span>
+        }
+</div>
+
+<button onclick="goBack()">Back</button>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>*@
+

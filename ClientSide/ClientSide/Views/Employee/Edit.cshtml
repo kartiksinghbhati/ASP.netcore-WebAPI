@@ -1,0 +1,292 @@
+﻿@using System.IO
+
+@model ClientSide.Models.Employee
+
+<style>
+    .editButtons {
+        padding-top: 20px;
+    }
+</style>
+
+<h2>Edit Employee</h2>
+
+<div id="editEmployeeForm">
+    <input type="hidden" name="Id" value="@Model.Id">
+
+    <div class="form-group">
+        <label for="FirstName">First Name:</label>
+        <input type="text" class="form-control" id="FirstName" name="FirstName" maxlength="50" value="@Model.FirstName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="LastName">Last Name:</label>
+        <input type="text" class="form-control" id="LastName" name="LastName" maxlength="50" value="@Model.LastName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="DateOfBirth">Date of Birth:</label>
+        <input type="date" class="form-control" id="DateOfBirth" name="DateOfBirth" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" required>
+    </div>
+
+    <div class="form-group">
+        <label for="Salary">Salary:</label>
+        <input type="number" class="form-control" id="Salary" name="Salary" value="@Model.Salary" required>
+    </div>
+
+    <div class="form-group">
+        <label>Current Photo:</label>
+        <img id="previewPhoto" src="@Model.PhotoBase64" alt="No Current Photo" style="max-width: 300px; max-height: 300px;">
+    </div>
+
+
+    <div class="form-group">
+        <label for="PhotoBase64">Photo:</label>
+        <input type="file" class="form-control" id="PhotoBase64" name="updatedPhoto">
+    </div>
+
+    <div class="form-group">
+        <label>Gender:</label>
+        <div class="form-check">
+            <input type="radio" class="form-check-input" id="GenderMale" name="Gender" value="Male" @(Model.Gender == "Male" ? "checked" : "") required>
+            <label class="form-check-label" for="GenderMale">Male</label>
+        </div>
+        <div class="form-check">
+            <input type="radio" class="form-check-input" id="GenderFemale" name="Gender" value="Female" @(Model.Gender == "Female" ? "checked" : "") required>
+            <label class="form-check-label" for="GenderFemale">Female</label>
+        </div>
+        <div class="form-check">
+            <input type="radio" class="form-check-input" id="GenderOther" name="Gender" value="Other" @(Model.Gender == "Other" ? "checked" : "") required>
+            <label class="form-check-label" for="GenderOther">Other</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Hobbies:</label>
+
+        <label><input type="checkbox" name="Hobbies" value="Reading" @(Model.Hobbies != null && Model.Hobbies.Contains("Reading") ? "checked" : "") /> Reading</label>
+        <label><input type="checkbox" name="Hobbies" value="Sports" @(Model.Hobbies != null && Model.Hobbies.Contains("Sports") ? "checked" : "") /> Sports</label>
+        <label><input type="checkbox" name="Hobbies" value="Music" @(Model.Hobbies != null && Model.Hobbies.Contains("Music") ? "checked" : "") /> Music</label>
+        <label><input type="checkbox" name="Hobbies" value="Painting" @(Model.Hobbies != null && Model.Hobbies.Contains("Painting") ? "checked" : "") /> Painting</label>
+        <label><input type="checkbox" name="Hobbies" value="Dance" @(Model.Hobbies != null && Model.Hobbies.Contains("Dance") ? "checked" : "") /> Dance</label>
+        <label><input type="checkbox" name="Hobbies" value="Photography" @(Model.Hobbies != null && Model.Hobbies.Contains("Photography") ? "checked" : "") /> Photography</label>
+        <label><input type="checkbox" name="Hobbies" value="Gaming" @(Model.Hobbies != null && Model.Hobbies.Contains("Gaming") ? "checked" : "") /> Gaming</label>
+    </div>
+
+    <div class="form-group">
+        <label for="ActiveStatus">Active Status:</label>
+        <select class="form-control" id="ActiveStatus" name="ActiveStatus" required>
+            <option value="Active" selected="@(Model.ActiveStatus == "Active")">Active</option>
+            <option value="Inactive" selected="@(Model.ActiveStatus == "Inactive")">Inactive</option>
+        </select>
+    </div>
+
+    <div class="editButtons">
+        <button type="button" class="btn btn-primary" id="updateButton">Update</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+
+@section Scripts {
+
+        <script>
+            $(document).ready(function () {
+                $('#updateButton').click(function () {
+                    var existingPhoto = "@Model.PhotoBase64";
+                    $('#previewPhoto').attr('src', existingPhoto);
+
+                    var firstName = $('input[name="FirstName"]').val();
+                    var lastName = $('input[name="LastName"]').val();
+                    var dateOfBirth = $('input[name="DateOfBirth"]').val();
+                    var salary = $('input[name="Salary"]').val();
+                    var gender = $('input[name="Gender"]:checked').val();
+                    var hobbies = $('input[name="Hobbies"]:checked').map(function () { return $(this).val(); }).get();
+                    var ActiveStatus = $('select[name="ActiveStatus"]').val();
+
+                    var fileInput = document.getElementById('PhotoBase64');
+                    var updatedPhoto = null;
+
+                    if (fileInput.files.length > 0 && fileInput.files[0].size > 0) {
+                        var reader = new FileReader();
+                        reader.onload = function () {
+                            updatedPhoto = reader.result;
+
+                            $('#previewPhoto').attr('src', updatedPhoto);
+
+                            var employee = {
+                                FirstName: firstName,
+                                LastName: lastName,
+                                DateOfBirth: dateOfBirth,
+                                Salary: salary,
+                                PhotoBase64: updatedPhoto,
+                                Gender: gender,
+                                Hobbies: hobbies,
+                                ActiveStatus: ActiveStatus
+                            };
+
+                            $.ajax({
+                                url: '@Url.Action("Edit")',
+                                type: 'POST',
+                                data: employee,
+                                success: function (result) {
+                                    if (result.success) {
+                                        window.location.href = '@Url.Action("Index")';
+                                    } else {
+                                        alert(result.message);
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    alert('An error occurred while updating the employee: ' + error);
+                                }
+                            });
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    } else {
+
+                        var employee = {
+                                FirstName: firstName,
+                                LastName: lastName,
+                                DateOfBirth: dateOfBirth,
+                                Salary: salary,
+                                PhotoBase64: null,
+                                Gender: gender,
+                                Hobbies: hobbies,
+                                ActiveStatus: ActiveStatus
+                            };
+
+                            $.ajax({
+                                url: '@Url.Action("Edit")',
+                                type: 'POST',
+                                data: employee,
+                                success: function (result) {
+                                    if (result.success) {
+                                        window.location.href = '@Url.Action("Index")';
+                                    } else {
+                                        alert(result.message);
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    alert('An error occurred while updating the employee: ' + error);
+                                }
+                            });
+                    }
+                });
+            });
+        </script>
+}
+
+@*@model ClientSide.Models.Employee
+
+<h2>Edit Employee</h2>
+
+@using (Html.BeginForm("Edit", "Employee", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(model => model.Id)
+
+        <div>
+            <label for="FirstName">First Name:</label>
+            @Html.TextBoxFor(model => model.FirstName)
+        </div>
+
+        <div>
+            <label for="LastName">Last Name:</label>
+            @Html.TextBoxFor(model => model.LastName)
+        </div>
+
+        <div>
+            <label for="DateOfBirth">Date of Birth:</label>
+            @Html.TextBoxFor(model => model.DateOfBirth, "{0:yyyy-MM-dd}", new { type = "date" })
+        </div>
+
+        <div>
+            <label for="Salary">Salary:</label>
+            @Html.TextBoxFor(model => model.Salary)
+        </div>
+
+        <div class="image">
+            @if (!string.IsNullOrEmpty(Model.PhotoBase64))
+            {
+                <img src="@Model.PhotoBase64" width="200" height="150" alt="Employee Photo" />
+            }
+            else
+            {
+                <span>No photo available</span>
+            }
+        </div>
+
+        <div>
+            <label for="Photo">Photo:</label>
+            <input type="file" id="PhotoUpload" accept="image/*">
+            @Html.HiddenFor(model => model.PhotoBase64)
+        </div>
+
+        <div>
+            <label for="Gender">Gender:</label><br>
+            @Html.RadioButtonFor(model => model.Gender, "Male") Male
+            @Html.RadioButtonFor(model => model.Gender, "Female") Female
+            @Html.RadioButtonFor(model => model.Gender, "Other") Other
+        </div>
+
+        <div>
+            <label>Hobbies:</label>
+            <label><input type="checkbox" name="Hobbies" value="Reading" @(Model.Hobbies != null && Model.Hobbies.Contains("Reading") ? "checked" : "") /> Reading</label>
+            <label><input type="checkbox" name="Hobbies" value="Sports" @(Model.Hobbies != null && Model.Hobbies.Contains("Sports") ? "checked" : "") /> Sports</label>
+            <label><input type="checkbox" name="Hobbies" value="Music" @(Model.Hobbies != null && Model.Hobbies.Contains("Music") ? "checked" : "") /> Music</label>
+            <label><input type="checkbox" name="Hobbies" value="Painting" @(Model.Hobbies != null && Model.Hobbies.Contains("Painting") ? "checked" : "") /> Painting</label>
+            <label><input type="checkbox" name="Hobbies" value="Dance" @(Model.Hobbies != null && Model.Hobbies.Contains("Dance") ? "checked" : "") /> Dance</label>
+            <label><input type="checkbox" name="Hobbies" value="Photography" @(Model.Hobbies != null && Model.Hobbies.Contains("Photography") ? "checked" : "") /> Photography</label>
+            <label><input type="checkbox" name="Hobbies" value="Gaming" @(Model.Hobbies != null && Model.Hobbies.Contains("Gaming") ? "checked" : "") /> Gaming</label>
+            @Html.HiddenFor(model => model.Hobbies, new { id = "Hobbies" })
+        </div>
+
+
+        <div>
+            <label for="ActiveStatus">Active Status:</label>
+            @Html.DropDownListFor(model => model.ActiveStatus, new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Active", Value = "Active" },
+                new SelectListItem { Text = "Inactive", Value = "Inactive" }
+            }, "Select")
+        </div>
+
+        <input type="submit" value="Update" />
+}
+
+<button onclick="goBack()">Back</button>
+
+<script>
+
+    document.getElementById('PhotoUpload').addEventListener('change', function () {
+        var fileReader = new FileReader();
+        fileReader.onload = function (e) {
+            if (e.target.result !== null) {
+                document.getElementById('PhotoBase64').value = e.target.result;
+            } 
+        };
+        fileReader.readAsDataURL(this.files[0]);
+    });
+
+    function updateSelectedHobbies() {
+        var checkboxes = document.querySelectorAll('input[name="Hobbies"]:checked');
+        var selectedHobbies = Array.from(checkboxes).map(function (checkbox) {
+            return checkbox.value;
+        }).join(',');
+
+        document.getElementById('Hobbies').value = selectedHobbies;
+    }
+
+    // Update selected hobbies when a checkbox is changed
+    var hobbyCheckboxes = document.querySelectorAll('input[name="Hobbies"]');
+    hobbyCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', updateSelectedHobbies);
+    });
+
+    // Call updateSelectedHobbies initially to populate the hidden field
+    updateSelectedHobbies();
+    function goBack() {
+        window.history.back();
+    }
+    window.onload = function() {
+        document.getElementById("Photo").value = "";
+    };
+</script>
+*@

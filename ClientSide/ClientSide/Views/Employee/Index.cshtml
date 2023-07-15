@@ -1,0 +1,152 @@
+﻿@model List<Employee>
+
+@{
+    ViewData["Title"] = "Employee List";
+}
+
+<style>
+    .heading {
+        padding-top: 20px;
+        padding-bottom: 30px;
+    }
+
+    .addButton {
+        padding-top: 10px;
+        padding-bottom: 30px;
+    }
+
+</style>
+
+<h2 class="heading">Employee List</h2>
+
+<p class="addButton">
+    <a href="@Url.Action("Add")" id="btnAddEmployee" class="btn btn-primary">Add New Employee</a>
+</p>
+
+<table id="employeeTable" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Date of Birth</th>
+            <th>Salary</th>
+            <th>Photo</th>
+            <th>Gender</th>
+            <th>Hobbies</th>
+            <th>Active Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model)
+        {
+            <tr>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td>@employee.DateOfBirth.ToShortDateString()</td>
+                <td>@employee.Salary</td>
+                <td>
+                    @if (employee.PhotoBase64 == null)
+                    {
+                        <span>Not Available</span>
+                    }
+                    else
+                    {
+                        <span>Available</span>
+                    }
+                </td>
+                <td>@employee.Gender</td>
+                <td>
+                    @if (employee.Hobbies == null)
+                    {
+                        <span>Not Specified</span>
+                    }
+                    else
+                    {
+                        <span>Specified</span>
+                    }
+                </td>
+                <td>@employee.ActiveStatus</td>
+                <td>
+                    <a href="@Url.Action("Read", new { id = employee.Id })" class="btn btn-secondary">View</a> |
+                    <a href="@Url.Action("Edit", new { id = employee.Id })" class="btn btn-secondary">Edit</a> |
+                    <a href="@Url.Action("Remove", new { id = employee.Id })" class="btn btn-secondary">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#employeeTable').DataTable();
+        });
+    </script>
+}
+
+
+@*@model List<ClientSide.Models.Employee>
+
+<h1>Employee List</h1>
+
+<div>
+    <button onclick="addEmployee()">Add Employee</button>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Date of Birth</th>
+            <th>Salary</th>
+            <th>Gender</th>
+            <th>Active Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model)
+        {
+            <tr>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td>@employee.DateOfBirth.ToShortDateString()</td>
+                <td>@employee.Salary</td>
+                <td>@employee.Gender</td>
+                <td>@employee.ActiveStatus</td>
+                <td>
+                    <input type="hidden" id="employeeId" value="@employee.Id" />
+
+                    <button onclick="readEmployee()">Read</button>
+                    <button onclick="editEmployee()">Edit</button>
+                    <button onclick="removeEmployee()">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+  function addEmployee() {
+    window.location.href = "/Employee/Add";
+  }
+
+  function readEmployee() {
+    var employeeId = document.getElementById("employeeId").value;
+    window.location.href = "/Employee/Read/" + employeeId;
+  }
+
+  function editEmployee() {
+    var employeeId = document.getElementById("employeeId").value;
+    window.location.href = "/Employee/Edit/" + employeeId;
+  }
+
+  function removeEmployee() {
+    var employeeId = document.getElementById("employeeId").value;
+    window.location.href = "/Employee/Remove/" + employeeId;
+  }
+</script>
+*@
